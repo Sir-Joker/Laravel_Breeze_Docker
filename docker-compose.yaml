@@ -1,0 +1,45 @@
+services:
+  web:
+    build: .
+    container_name: laravel_web
+    ports:
+      - "80:80"
+      - "443:443"
+      - "2222:22"
+    depends_on:
+      - mysql
+    environment:
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: laravel
+      DB_USERNAME: lara
+      DB_PASSWORD: larapassword
+    command: sh -c "/usr/local/bin/wait-for-mysql.sh && php artisan migrate --force && service ssh start && apache2ctl -D FOREGROUND"
+
+  mysql:
+    image: mysql:8.0
+    container_name: laravel_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: laravel
+      MYSQL_USER: lara
+      MYSQL_PASSWORD: larapassword
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    environment:
+      PMA_HOST: mysql
+      MYSQL_ROOT_PASSWORD: rootpassword
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql
+
+volumes:
+  mysql_data:
