@@ -6,25 +6,38 @@ services:
       - "80:80"
       - "443:443"
       - "2222:22"
-    depends_on:
-      - mysql
+    depends_on:    
+      mysql:
+        condition: service_started
+        
     environment:
-      DB_CONNECTION: mysql
-      DB_HOST: mysql
-      DB_PORT: 3306
-      DB_DATABASE: laravel
-      DB_USERNAME: lara
-      DB_PASSWORD: larapassword
-    command: sh -c "/usr/local/bin/wait-for-mysql.sh && php artisan migrate --force && service ssh start && apache2ctl -D FOREGROUND"
+      - APP_NAME=${APP_NAME}
+      - APP_URL=${APP_URL}
+      - DB_CONNECTION=${DB_CONNECTION}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_DATABASE=${MYSQL_DATABASE}
+      - DB_USERNAME=${MYSQL_USER}
+      - DB_PASSWORD=${MYSQL_PASSWORD}
+      - MAIL_MAILER=${MAIL_MAILER}
+      - MAIL_HOST=${MAIL_HOST}
+      - MAIL_PORT=${MAIL_PORT}
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - MAIL_ENCRYPTION=${MAIL_ENCRYPTION}
+      - MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS}
+      - MAIL_FROM_NAME=${MAIL_FROM_NAME}
+      - APP_DOMAIN=${APP_DOMAIN}
+    command: sh -c "/usr/local/bin/config.sh && /usr/local/bin/wait-for-mysql.sh && php artisan migrate --force && service ssh start && apache2ctl -D FOREGROUND"
 
   mysql:
     image: mysql:8.0
     container_name: laravel_mysql
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: laravel
-      MYSQL_USER: lara
-      MYSQL_PASSWORD: larapassword
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
     volumes:
       - mysql_data:/var/lib/mysql
     ports:
@@ -34,8 +47,8 @@ services:
     image: phpmyadmin/phpmyadmin
     container_name: phpmyadmin
     environment:
-      PMA_HOST: mysql
-      MYSQL_ROOT_PASSWORD: rootpassword
+      - PMA_HOST=${DB_HOST}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
     ports:
       - "8080:80"
     depends_on:

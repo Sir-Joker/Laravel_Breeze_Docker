@@ -9,7 +9,9 @@ ENV COMPOSER_ALLOW_SUPERUSER=1
 
 # Update der Paketliste und Installation der benötigten Pakete
 RUN apt-get update && \
-    apt-get install -y apache2 php8.3 libapache2-mod-php8.3 php8.3-xml php8.3-dom php8.3-mbstring php8.3-mysql php8.3-zip php8.3-curl php8.3-gd openssh-server wget curl unzip git npm cron vim nano mysql-client && \
+    apt-get install -y apache2 php8.3 libapache2-mod-php8.3 php8.3-xml php8.3-dom php8.3-mbstring php8.3-mysql php8.3-zip php8.3-curl php8.3-gd openssh-server wget curl unzip git npm cron vim nano mysql-client certbot python3-certbot-apache cron && \
+	apt-get update && \
+	apt-get upgrade -y && \
     apt-get clean
 
 # Composer installieren
@@ -38,6 +40,10 @@ RUN laravel new laravel-app && \
 
 # Kopiere .env Beispiel und konfiguriere es
 COPY .env.example .env
+COPY .env.example .conf.env
+COPY config.sh /usr/local/bin/config.sh
+RUN chmod +x /usr/local/bin/config.sh 
+
 RUN php artisan key:generate
 
 # Abhängigkeiten und Laravel Breeze installieren und konfigurieren
